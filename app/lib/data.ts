@@ -2,6 +2,7 @@ export type Defect = {
   id: string;
   name: string;
   repairCost: number; // в Kč
+  partPrice: number;
 };
 
 export type CarModel = {
