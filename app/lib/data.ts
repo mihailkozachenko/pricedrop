@@ -2,7 +2,8 @@ export type Defect = {
   id: string;
   name: string;
   repairCost: number; // в Kč
-  severity: "low" | "medium" | "high";
+  severity?: "low" | "medium" | "high";
+  partPrice?: number;
 };
 
 export type CarModel = {
