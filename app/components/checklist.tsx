@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CARS } from "../../lib/data";
+import { CARS } from "../lib/data";
 
 export function Checklist({
   carId,
