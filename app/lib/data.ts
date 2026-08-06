@@ -23,9 +23,9 @@ export const CARS: CarModel[] = [
     generation: "II (2004–2013)",
     engine: "1.9 TDI",
     commonDefects: [
-      { id: "dpf", name: "Забитый сажевый фильтр (DPF)", repairCost: 15000 },
-      { id: "turbo", name: "Износ турбины", repairCost: 20000 },
-      { id: "injectors", name: "Проблемы с форсунками", repairCost: 12000 },
+      { id: "dpf", name: "Забитый сажевый фильтр (DPF)", repairCost: 15000, severity: "medium", partPrice: 8000 },
+      { id: "turbo", name: "Износ турбины", repairCost: 20000, severity: "high", partPrice: 12000 },
+      { id: "injectors", name: "Проблемы с форсунками", repairCost: 12000, severity: "medium", partPrice: 7000 },
     ],
   },
   {
@@ -35,9 +35,9 @@ export const CARS: CarModel[] = [
     generation: "B6 (2005–2010)",
     engine: "2.0 TDI",
     commonDefects: [
-      { id: "dsg", name: "Износ сцепления DSG", repairCost: 35000 },
-      { id: "ac-clutch", name: "Отказ муфты кондиционера", repairCost: 8000 },
-      { id: "timing-chain", name: "Растяжение цепи ГРМ", repairCost: 18000 },
+      { id: "dsg", name: "Износ сцепления DSG", repairCost: 35000, severity: "high", partPrice: 20000 },
+      { id: "ac-clutch", name: "Отказ муфты кондиционера", repairCost: 8000, severity: "low", partPrice: 3000 },
+      { id: "timing-chain", name: "Растяжение цепи ГРМ", repairCost: 18000, severity: "high", partPrice: 9000 },
     ],
   },
 ];
