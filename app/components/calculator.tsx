@@ -1,4 +1,4 @@
-import { CARS } from "../../lib/data";
+import { CARS } from "../lib/data";
 
 export function Calculator({
   carId,

@@ -1,4 +1,7 @@
-import { CARS } from "../../lib/data";
+"use client";
+
+import { useRef } from "react";
+import { CARS } from "../lib/data";
 
 const SEVERITY_MAP = {
   high: { label: "Критично", cls: "bg-red-100 text-red-700 border-red-200" },
@@ -26,6 +29,7 @@ export function Report({
   carId: string;
   defectIds: string[];
 }) {
+  const contentRef = useRef<HTMLDivElement>(null);
   const car = CARS.find((c) => c.id === carId);
 
   if (!car || defectIds.length === 0) {
@@ -35,98 +39,127 @@ export function Report({
   const defects = car.commonDefects.filter((d) => defectIds.includes(d.id));
   const total = defects.reduce((sum, d) => sum + d.repairCost, 0);
 
+  async function handleDownloadPDF() {
+    if (!contentRef.current) return;
+
+    const html2canvas = (await import("html2canvas")).default;
+    const { jsPDF } = await import("jspdf");
+
+    const canvas = await html2canvas(contentRef.current, { scale: 2 });
+    const imgData = canvas.toDataURL("image/png");
+
+    const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+    pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+    pdf.save(`report-${car!.id}.pdf`);
+  }
+
   return (
     <div className="rounded-2xl border border-slate-200 bg-white shadow-md overflow-hidden">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-slate-800 to-slate-600 px-6 py-5 flex items-center gap-4">
-        <div className="flex-shrink-0 bg-white/10 rounded-xl p-3">
-          <CarIcon />
-        </div>
-        <div>
-          <p className="text-slate-400 text-xs font-medium uppercase tracking-widest mb-0.5">
-            Отчёт по осмотру
-          </p>
-          <h2 className="text-white text-xl font-bold leading-tight">
-            {car.brand} {car.model}
-          </h2>
-          <p className="text-slate-300 text-sm">{car.generation}</p>
-        </div>
-      </div>
-
-      {/* Car info grid */}
-      <div className="px-6 py-4 grid grid-cols-2 gap-3 bg-slate-50 border-b border-slate-100">
-        {[
-          { label: "Марка", value: car.brand },
-          { label: "Модель", value: car.model },
-          { label: "Поколение", value: car.generation },
-          { label: "Двигатель", value: car.engine },
-        ].map(({ label, value }) => (
-          <div key={label}>
-            <p className="text-xs text-slate-400 uppercase tracking-wide font-medium">{label}</p>
-            <p className="text-sm font-semibold text-slate-700 mt-0.5">{value}</p>
+      <div ref={contentRef} className="bg-white">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-slate-800 to-slate-600 px-6 py-5 flex items-center gap-4">
+          <div className="flex-shrink-0 bg-white/10 rounded-xl p-3">
+            <CarIcon />
           </div>
-        ))}
-      </div>
+          <div>
+            <p className="text-slate-400 text-xs font-medium uppercase tracking-widest mb-0.5">
+              Отчёт по осмотру
+            </p>
+            <h2 className="text-white text-xl font-bold leading-tight">
+              {car.brand} {car.model}
+            </h2>
+            <p className="text-slate-300 text-sm">{car.generation}</p>
+          </div>
+        </div>
 
-      {/* Defects section */}
-      <div className="px-6 py-4">
-        <h3 className="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-3">
-          Выявленные дефекты
-        </h3>
-        <div className="space-y-2">
-          {defects.map((d) => {
-            const sev = d.severity ? SEVERITY_MAP[d.severity] : null;
-            return (
-              <div
-                key={d.id}
-                className="flex items-start justify-between gap-3 py-3 px-4 rounded-xl bg-slate-50 border border-slate-100"
-              >
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-sm font-medium text-slate-800">{d.name}</span>
-                    {sev && (
-                      <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full border ${sev.cls}`}>
-                        {sev.label}
-                      </span>
+        {/* Car info grid */}
+        <div className="px-6 py-4 grid grid-cols-2 gap-3 bg-slate-50 border-b border-slate-100">
+          {[
+            { label: "Марка", value: car.brand },
+            { label: "Модель", value: car.model },
+            { label: "Поколение", value: car.generation },
+            { label: "Двигатель", value: car.engine },
+          ].map(({ label, value }) => (
+            <div key={label}>
+              <p className="text-xs text-slate-400 uppercase tracking-wide font-medium">{label}</p>
+              <p className="text-sm font-semibold text-slate-700 mt-0.5">{value}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Defects section */}
+        <div className="px-6 py-4">
+          <h3 className="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-3">
+            Выявленные дефекты
+          </h3>
+          <div className="space-y-2">
+            {defects.map((d) => {
+              const sev = d.severity ? SEVERITY_MAP[d.severity] : null;
+              return (
+                <div
+                  key={d.id}
+                  className="flex items-start justify-between gap-3 py-3 px-4 rounded-xl bg-slate-50 border border-slate-100"
+                >
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-sm font-medium text-slate-800">{d.name}</span>
+                      {sev && (
+                        <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full border ${sev.cls}`}>
+                          {sev.label}
+                        </span>
+                      )}
+                    </div>
+                    {d.partPrice != null && (
+                      <p className="text-xs text-slate-400 mt-0.5">
+                        Запчасть: {d.partPrice.toLocaleString("cs-CZ")} Kč
+                      </p>
                     )}
                   </div>
-                  {d.partPrice != null && (
-                    <p className="text-xs text-slate-400 mt-0.5">
-                      Запчасть: {d.partPrice.toLocaleString("cs-CZ")} Kč
+                  <div className="text-right flex-shrink-0">
+                    <p className="text-sm font-bold text-slate-800">
+                      {d.repairCost.toLocaleString("cs-CZ")} Kč
                     </p>
-                  )}
+                    <p className="text-[11px] text-slate-400">ремонт</p>
+                  </div>
                 </div>
-                <div className="text-right flex-shrink-0">
-                  <p className="text-sm font-bold text-slate-800">
-                    {d.repairCost.toLocaleString("cs-CZ")} Kč
-                  </p>
-                  <p className="text-[11px] text-slate-400">ремонт</p>
-                </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Total block */}
+        <div className="mx-6 mb-6 rounded-xl bg-gradient-to-r from-slate-800 to-slate-700 px-5 py-4 flex items-center justify-between">
+          <div>
+            <p className="text-slate-400 text-xs font-medium uppercase tracking-widest">
+              Итого дефектов
+            </p>
+            <p className="text-white text-2xl font-extrabold mt-0.5">
+              {defects.length}
+            </p>
+          </div>
+          <div className="w-px h-10 bg-white/20" />
+          <div className="text-right">
+            <p className="text-slate-400 text-xs font-medium uppercase tracking-widest">
+              Стоимость устранения
+            </p>
+            <p className="text-amber-400 text-2xl font-extrabold mt-0.5">
+              {total.toLocaleString("cs-CZ")} Kč
+            </p>
+          </div>
         </div>
       </div>
 
-      {/* Total block */}
-      <div className="mx-6 mb-6 rounded-xl bg-gradient-to-r from-slate-800 to-slate-700 px-5 py-4 flex items-center justify-between">
-        <div>
-          <p className="text-slate-400 text-xs font-medium uppercase tracking-widest">
-            Итого дефектов
-          </p>
-          <p className="text-white text-2xl font-extrabold mt-0.5">
-            {defects.length}
-          </p>
-        </div>
-        <div className="w-px h-10 bg-white/20" />
-        <div className="text-right">
-          <p className="text-slate-400 text-xs font-medium uppercase tracking-widest">
-            Стоимость устранения
-          </p>
-          <p className="text-amber-400 text-2xl font-extrabold mt-0.5">
-            {total.toLocaleString("cs-CZ")} Kč
-          </p>
-        </div>
+      {/* Export action */}
+      <div className="px-6 pb-6">
+        <button
+          onClick={handleDownloadPDF}
+          className="w-full px-4 py-2.5 rounded-xl bg-slate-800 text-white text-sm font-semibold hover:bg-slate-700 transition-colors"
+        >
+          Скачать PDF
+        </button>
       </div>
     </div>
   );
