@@ -40,4 +40,16 @@ export const CARS: CarModel[] = [
       { id: "timing-chain", name: "Растяжение цепи ГРМ", repairCost: 18000, severity: "high", partPrice: 9000 },
     ],
   },
+  {
+    id: "peugeot-407-27-hdi",
+    brand: "Peugeot",
+    model: "407",
+    generation: "I (2004–2010)",
+    engine: "2.7 HDI",
+    commonDefects: [
+      { id: "timing-belt-oil", name: "Обрыв ремня ГРМ в масляной ванне", repairCost: 45000, severity: "high", partPrice: 15000 },
+      { id: "turbo", name: "Отказ би-турбины", repairCost: 40000, severity: "high", partPrice: 28000 },
+      { id: "injectors", name: "Проблемы с форсунками Siemens", repairCost: 22000, severity: "medium", partPrice: 14000 },
+    ],
+  },
 ];
